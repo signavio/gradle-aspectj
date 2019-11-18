@@ -8,14 +8,14 @@ group = 'net.uberfoo.gradle'
 version = '2.5-SNAPSHOT'
 
 repositories {
-	jcenter()
+    jcenter()
 }
 
 dependencies {
-    compile localGroovy()
-    compile gradleApi()
-	testCompile gradleTestKit()
-	testCompile 'junit:junit:4.12'
+    implementation localGroovy()
+    implementation gradleApi()
+    testImplementation gradleTestKit()
+    testImplementation 'junit:junit:4.12'
 }
 
 task sourcesJar(type: Jar) {
@@ -33,9 +33,9 @@ signing {
 }
 
 artifacts {
-	//archives jar
-	archives sourcesJar
-	archives javadocJar
+    //archives jar
+    archives sourcesJar
+    archives javadocJar
 }
 
 uploadArchives {
@@ -80,5 +80,10 @@ uploadArchives {
       }
     }
   }
+}
+
+wrapper {
+    gradleVersion = '6.0'
+    distributionType = 'ALL'
 }
 
