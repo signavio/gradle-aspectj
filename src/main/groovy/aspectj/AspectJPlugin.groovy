@@ -48,7 +48,7 @@ class AspectJPlugin implements Plugin<Project> {
                 def aspectTaskName = namingConventions.getAspectCompileTaskName(projectSourceSet)
                 def javaTaskName = namingConventions.getJavaCompileTaskName(projectSourceSet)
 
-                project.tasks.create(name: aspectTaskName, overwrite: true, description: "Compiles AspectJ Source for ${projectSourceSet.name} source set", type: Ajc) {
+                project.tasks.create(name: aspectTaskName, description: "Compiles AspectJ Source for ${projectSourceSet.name} source set", type: Ajc) {
                     sourceSet = projectSourceSet
                     inputs.files(sourceSet.allJava)
                     outputs.dir(sourceSet.java.outputDir)
@@ -138,7 +138,7 @@ class Ajc extends DefaultTask {
         logger.info("Running ajc ...")
         logger.info("classpath: ${sourceSet.compileClasspath.asPath}")
         logger.info("srcDirs $sourceSet.java.srcDirs")
-		
+
         def iajcArgs = [classpath           : sourceSet.compileClasspath.asPath,
                         destDir             : sourceSet.java.outputDir.absolutePath,
                         s                   : sourceSet.java.outputDir.absolutePath,
