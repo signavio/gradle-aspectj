@@ -4,7 +4,7 @@ plugins {
 }
 
 project.ext {
-    aspectjVersion = '1.9.3'
+    aspectjVersion = '1.9.4'
 }
 
 mainClassName = 'com.example.MyApp'
@@ -15,6 +15,5 @@ repositories {
 
 dependencies {
 	// https://mvnrepository.com/artifact/org.aspectj/aspectjrt
-	implementation group: 'org.aspectj', name: 'aspectjrt', version: '1.9.3'
+	implementation group: 'org.aspectj', name: 'aspectjrt', version: '1.9.4'
 }
-

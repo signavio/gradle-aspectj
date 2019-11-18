@@ -5,7 +5,7 @@ apply plugin: 'signing'
 apply plugin: 'java-gradle-plugin'
 
 group = 'net.uberfoo.gradle'
-version = '2.5-SNAPSHOT'
+version = '2.5'
 
 repositories {
     jcenter()
@@ -86,4 +86,3 @@ wrapper {
     gradleVersion = '6.0'
     distributionType = 'ALL'
 }
-
