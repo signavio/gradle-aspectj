@@ -1,0 +1,98 @@
+version: 2.1
+
+references:
+  workspace_root: &workspace_root "/home/circleci/repository"
+  jdk_docker_image: &jdk_docker_image "${AWS_ECR_ACCOUNT_URL}/spm-jdk-corretto:8.282.08.1-b02"
+
+executors:
+  jdk-docker:
+    docker:
+      - image: *jdk_docker_image
+
+commands:
+  # from https://circleci.com/orbs/registry/orb/circleci/gradle#orb-source
+  with_cache:
+    description: |
+      Run a set of steps with gradle dependencies cached.
+    parameters:
+      steps:
+        type: steps
+    steps:
+      - run:
+          name: Generate Cache Checksum
+          command: find . -name 'build.gradle*' | sort | xargs cat | sha1sum | cut -d' ' -f 1 > /tmp/gradle_cache_seed
+      - restore_cache:
+          key: gradle-{{ checksum "/tmp/gradle_cache_seed" }}
+      - steps: << parameters.steps >>
+      - save_cache:
+          paths:
+            - ~/.gradle/caches
+            - ~/.gradle/wrapper
+          key: gradle-{{ checksum "/tmp/gradle_cache_seed" }}
+
+  configure_artifactory_credentials:
+    description: "Add Signavio artifactory credentials to global gradle.properties from environment variables"
+    steps:
+      - run:
+          name: configure artifactory credentials
+          command: |
+            mkdir -p "/home/circleci/.gradle/"
+            echo "artifactory_user=${ARTIFACTORY_USER}" >> /home/circleci/.gradle/gradle.properties
+            echo "artifactory_password=${ARTIFACTORY_PASSWORD}" >> /home/circleci/.gradle/gradle.properties
+            echo "artifactory_contextUrl=https://signavio.jfrog.io/signavio" >> /home/circleci/.gradle/gradle.properties
+            # Tell gradle to use that properties file
+            echo "export GRADLE_USER_HOME=/home/circleci/.gradle/" >> $BASH_ENV
+
+
+  save_java_test_results:
+    description: "Save Java test results"
+    steps:
+      - run:
+          name: "Save test results"
+          command: |
+            set -x
+            mkdir -p ~/test-results/junit/
+            find . -type f -regex ".*/backend/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
+
+            # move HTML reports - not evaluated by circleci, but useful for debugging
+            # (e.g. will be generated + exposed in UI as artifacts even if no tests were found)
+            mkdir -p ~/test-results/htmlreport
+            find . -type d -regex ".*/build/reports/tests" -exec cp -r '{}' ~/test-results/htmlreport/ \;
+
+            # save profiling HTML reports
+            mkdir -p ~/test-results/profiling
+            find . -type d -regex ".*/build/reports/profile" -exec cp -r '{}' ~/test-results/profiling/ \;
+
+            # copy jacoco test coverage reports
+            mkdir -p ~/test-results/jacoco/html
+            find . -type f -regex ".*/build/reports/jacoco/.*\.xml" -exec cp -r '{}' ~/test-results/jacoco \;
+            # in case there are JaCoCo HTML reports
+            find . -type d -regex ".*/build/reports/jacoco.*/html$" -exec cp -r '{}' ~/test-results/jacoco/html/ \;
+          when: always
+
+jobs:
+  run_tests:
+    executor: jdk-docker
+    working_directory: *workspace_root
+    steps:
+      - checkout
+      - configure_artifactory_credentials
+      - with_cache:
+          steps:
+            - run:
+                name: "Run tests"
+                command: |
+                  ./gradlew --build-cache test jacocoTestReport --info --stacktrace
+      - save_java_test_results
+      - store_artifacts:
+          path: ~/test-results
+      - store_test_results:
+          path: ~/test-results
+
+workflows:
+  version: 2
+
+  full_workflow:
+    jobs:
+      - run_tests:
+          context: ECR
