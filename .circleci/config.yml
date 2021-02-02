@@ -80,6 +80,10 @@ jobs:
       - with_cache:
           steps:
             - run:
+                name: "Build"
+                command: |
+                  ./gradlew --build-cache build --info --stacktrace
+            - run:
                 name: "Run tests"
                 command: |
                   ./gradlew --build-cache test jacocoTestReport --info --stacktrace
