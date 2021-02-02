@@ -86,7 +86,7 @@ jobs:
             - run:
                 name: "Run tests"
                 command: |
-                  ./gradlew --build-cache test jacocoTestReport --info --stacktrace
+                  ./gradlew --build-cache test --info --stacktrace
       - save_java_test_results
       - store_artifacts:
           path: ~/test-results
