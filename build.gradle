@@ -27,14 +27,15 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 }
 
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
+task javadocJar(type: Jar) {
+    archiveClassifier = "javadoc"
+    from javadoc
+    from groovydoc
 }
 
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
-    from javadoc
+task sourcesJar(type: Jar) {
+    archiveClassifier = "sources"
+    from sourceSets.main.allSource
 }
 
 artifacts {
@@ -79,6 +80,7 @@ publishing {
         mavenJava(MavenPublication) {
             from components.java
             artifact javadocJar
+            artifact sourcesJar
         }
     }
 }
