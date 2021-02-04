@@ -61,8 +61,8 @@ publishing {
             artifact javadocJar
             artifact sourcesJar
 
-            groupId 'com.signavio'
-            artifactId "gradle-aspectj-plugin"
+            groupId 'com.signavio.aspectj'
+            artifactId "com.signavio.aspectj.gradle.plugin"
         }
     }
 }
