@@ -14,6 +14,15 @@ repositories {
     jcenter()
 }
 
+gradlePlugin {
+    plugins {
+        aspectj {
+            id = 'com.signavio.aspectj'
+            implementationClass = 'aspectj.AspectJPlugin'
+        }
+    }
+}
+
 dependencies {
     implementation localGroovy()
     implementation gradleApi()
