@@ -45,30 +45,6 @@ wrapper {
 
 /* Publishing to Signavio's artifactory */
 
-repositories {
-    // get values from gradle.properties
-    String artifactoryUrl = getProperty("artifactoryContextUrl")
-    String artifactoryUser = getProperty("artifactoryUser")
-    String artifactoryPassword = getProperty("artifactoryPassword")
-
-    maven {
-        name 'signavio-jfrog-plugins-release-local'
-        url "${artifactoryUrl}/plugins-release-local"
-        credentials {
-            username = artifactoryUser
-            password = artifactoryPassword
-        }
-    }
-    maven {
-        name 'signavio-jfrog-plugins-snapshot-local'
-        url "${artifactoryUrl}/plugins-snapshot-local"
-        credentials {
-            username = artifactoryUser
-            password = artifactoryPassword
-        }
-    }
-}
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
