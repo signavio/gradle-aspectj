@@ -70,9 +70,32 @@ publishing {
 def publishRepoKey = isChangingVersion(project.version) ? 'plugins-snapshot-local' : 'plugins-release-local'
 artifactory {
     publish {
+        // get values from gradle.properties
+        String artifactoryContextUrl = getProperty("artifactoryContextUrl")
+        String artifactoryUser = getProperty("artifactoryUser")
+        String artifactoryPassword = getProperty("artifactoryPassword")
+
+        contextUrl = artifactoryContextUrl
         repository {
             repoKey = publishRepoKey
+            username = artifactoryUser
+            password = artifactoryPassword
         }
+    }
+}
+
+artifactoryPublish {
+    dependsOn 'jar'
+    dependsOn 'generatePomFileForMavenJavaPublication'
+
+    publications(publishing.publications.mavenJava)
+
+    gradlePlugin.plugins.each {
+        dependsOn "generatePomFileFor${it.name.capitalize()}PluginMarkerMavenPublication"
+    }
+
+    publishing.publications.findAll { it.name.endsWith('PluginMarkerMaven') }.each {
+        publications(it)
     }
 }
 
