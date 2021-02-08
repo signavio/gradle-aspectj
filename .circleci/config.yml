@@ -37,9 +37,9 @@ commands:
           name: configure artifactory credentials
           command: |
             mkdir -p "/home/circleci/.gradle/"
-            echo "artifactory_user=${ARTIFACTORY_USER}" >> /home/circleci/.gradle/gradle.properties
-            echo "artifactory_password=${ARTIFACTORY_PASSWORD}" >> /home/circleci/.gradle/gradle.properties
-            echo "artifactory_contextUrl=https://signavio.jfrog.io/signavio" >> /home/circleci/.gradle/gradle.properties
+            echo "artifactoryUser=${ARTIFACTORY_USER}" >> /home/circleci/.gradle/gradle.properties
+            echo "artifactoryPassword=${ARTIFACTORY_PASSWORD}" >> /home/circleci/.gradle/gradle.properties
+            echo "artifactoryContextUrl=https://signavio.jfrog.io/signavio" >> /home/circleci/.gradle/gradle.properties
             # Tell gradle to use that properties file
             echo "export GRADLE_USER_HOME=/home/circleci/.gradle/" >> $BASH_ENV
 

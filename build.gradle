@@ -1,13 +1,26 @@
+plugins {
+    id "com.jfrog.artifactory" version "4.20.0"
+}
+
 apply plugin: 'groovy'
 apply plugin: 'maven-publish'
 apply plugin: 'maven'
 apply plugin: 'java-gradle-plugin'
 
 group = 'net.uberfoo.gradle'
-version = '2.6-SNAPSHOT'
+version = '2.6-sig1-SNAPSHOT'
 
 repositories {
     jcenter()
+}
+
+gradlePlugin {
+    plugins {
+        aspectj {
+            id = 'com.signavio.aspectj'
+            implementationClass = 'aspectj.AspectJPlugin'
+        }
+    }
 }
 
 dependencies {
@@ -17,14 +30,15 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 }
 
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
+task javadocJar(type: Jar) {
+    archiveClassifier = "javadoc"
+    from javadoc
+    from groovydoc
 }
 
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
-    from javadoc
+task sourcesJar(type: Jar) {
+    archiveClassifier = "sources"
+    from sourceSets.main.allSource
 }
 
 artifacts {
@@ -33,42 +47,58 @@ artifacts {
     archives javadocJar
 }
 
-uploadArchives {
-  repositories {
-    mavenDeployer {
-
-      pom.project {
-        name 'Gradle AspectJ Plugin'
-        packaging 'jar'
-        description 'A Gradle plugin for compiling AspectJ aspects.'
-        url 'https://github.com/james-bryant/gradle-aspectj'
-
-        scm {
-          connection 'scm:git:https://github.com/james-bryant/gradle-aspectj.git'
-          developerConnection 'scm:git:https://github.com/james-bryant/gradle-aspectj.git'
-          url 'https://github.com/james-bryant/gradle-aspectj.git'
-        }
-
-        licenses {
-          license {
-            name 'The Apache License, Version 2.0'
-            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-          }
-        }
-
-        developers {
-          developer {
-            id 'uberfoo'
-            name 'James Bryant'
-            email 'james@uberfoo.net'
-          }
-        }
-      }
-    }
-  }
-}
-
 wrapper {
     gradleVersion = '6.0'
     distributionType = 'ALL'
+}
+
+/* Publishing to Signavio's artifactory */
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact javadocJar
+            artifact sourcesJar
+
+            groupId 'com.signavio.aspectj'
+            artifactId "com.signavio.aspectj.gradle.plugin"
+        }
+    }
+}
+
+def publishRepoKey = isChangingVersion(project.version) ? 'plugins-snapshot-local' : 'plugins-release-local'
+artifactory {
+    publish {
+        // get values from gradle.properties
+        String artifactoryContextUrl = getProperty("artifactoryContextUrl")
+        String artifactoryUser = getProperty("artifactoryUser")
+        String artifactoryPassword = getProperty("artifactoryPassword")
+
+        contextUrl = artifactoryContextUrl
+        repository {
+            repoKey = publishRepoKey
+            username = artifactoryUser
+            password = artifactoryPassword
+        }
+    }
+}
+
+artifactoryPublish {
+    dependsOn 'jar'
+    dependsOn 'generatePomFileForMavenJavaPublication'
+
+    publications(publishing.publications.mavenJava)
+
+    gradlePlugin.plugins.each {
+        dependsOn "generatePomFileFor${it.name.capitalize()}PluginMarkerMavenPublication"
+    }
+
+    publishing.publications.findAll { it.name.endsWith('PluginMarkerMaven') }.each {
+        publications(it)
+    }
+}
+
+static boolean isChangingVersion(String ver) {
+    ver.endsWith('-SNAPSHOT') || ver.endsWith('-next')
 }
