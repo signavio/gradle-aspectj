@@ -8,7 +8,13 @@ apply plugin: 'maven'
 apply plugin: 'java-gradle-plugin'
 
 group = 'net.uberfoo.gradle'
-version = '2.6-sig1-SNAPSHOT'
+
+// !! Manually adjust this version for each release !!
+// To release, change to a non-SNAPSHOT version, push,
+// then tag / release that commit in GitHub:
+// https://github.com/signavio/gradle-aspectj/releases/new
+// A CircleCI job will publish your tag to artifactory.
+version = '2.6-sig2-SNAPSHOT'
 
 repositories {
     jcenter()
@@ -51,6 +57,10 @@ wrapper {
     gradleVersion = '6.0'
     distributionType = 'ALL'
 }
+
+// keep Java 8 downward compatibility of the generated artifact
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 /* Publishing to Signavio's artifactory */
 
