@@ -131,5 +131,6 @@ workflows:
           context: ECR
       - publish_from_git_tag:
           <<: *run-only-with-versioned-tags
+          context: ECR
           requires:
             - run_tests
