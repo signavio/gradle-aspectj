@@ -9,7 +9,11 @@ apply plugin: 'java-gradle-plugin'
 
 group = 'net.uberfoo.gradle'
 
-// adjust this version for each release
+// !! Manually adjust this version for each release !!
+// To release, change to a non-SNAPSHOT version, push,
+// then tag / release that commit in GitHub:
+// https://github.com/signavio/gradle-aspectj/releases/new
+// A CircleCI job will publish your tag to artifactory.
 version = '2.6-sig1'
 
 repositories {
