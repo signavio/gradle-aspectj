@@ -8,6 +8,8 @@ apply plugin: 'maven'
 apply plugin: 'java-gradle-plugin'
 
 group = 'net.uberfoo.gradle'
+
+// adjust this version for each release
 version = '2.6-sig1-SNAPSHOT'
 
 repositories {
@@ -51,6 +53,10 @@ wrapper {
     gradleVersion = '6.0'
     distributionType = 'ALL'
 }
+
+// keep Java 8 downward compatibility of the generated artifact
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 /* Publishing to Signavio's artifactory */
 
