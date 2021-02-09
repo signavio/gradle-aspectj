@@ -14,7 +14,7 @@ group = 'net.uberfoo.gradle'
 // then tag / release that commit in GitHub:
 // https://github.com/signavio/gradle-aspectj/releases/new
 // A CircleCI job will publish your tag to artifactory.
-version = '2.6-sig1'
+version = '2.6-sig2-SNAPSHOT'
 
 repositories {
     jcenter()
