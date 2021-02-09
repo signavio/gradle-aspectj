@@ -10,7 +10,7 @@ apply plugin: 'java-gradle-plugin'
 group = 'net.uberfoo.gradle'
 
 // adjust this version for each release
-version = '2.6-sig1-SNAPSHOT'
+version = '2.6-sig1'
 
 repositories {
     jcenter()
