@@ -3,6 +3,17 @@ version: 2.1
 references:
   workspace_root: &workspace_root "/home/circleci/repository"
   jdk_docker_image: &jdk_docker_image "${AWS_ECR_ACCOUNT_URL}/spm-jdk-corretto:8.282.08.1-b02"
+  references:
+    run-on-every-branch: &run-on-every-branch
+      filters:
+        tags:
+          only: /^v.*/
+    run-only-with-versioned-tags: &run-only-with-versioned-tags
+      filters:
+        tags:
+          only: /^v.*/
+        branches:
+          ignore: /.*/
 
 executors:
   jdk-docker:
@@ -93,10 +104,32 @@ jobs:
       - store_test_results:
           path: ~/test-results
 
+  publish_from_git_tag:
+    executor: jdk-docker
+    working_directory: *workspace_root
+    steps:
+      - checkout
+      - configure_artifactory_credentials
+      - with_cache:
+          steps:
+            - run:
+                name: "Build"
+                command: |
+                  ./gradlew --build-cache build --info --stacktrace
+            - run:
+                name: "Publish"
+                command: |
+                  ./gradlew --build-cache artifactoryPublish --info --stacktrace
+
 workflows:
   version: 2
 
   full_workflow:
     jobs:
       - run_tests:
+          <<: *run-on-every-branch
           context: ECR
+      - publish_from_git_tag:
+          <<: *run-only-with-versioned-tags
+          requires:
+            - run_tests
